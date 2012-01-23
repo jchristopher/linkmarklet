@@ -1,0 +1,237 @@
+<?php
+ob_start();
+require_once( preg_replace( "/wp-content.*/", "wp-load.php", __FILE__ ) );
+require_once( preg_replace( "/wp-content.*/", "/wp-admin/includes/admin.php", __FILE__ ) );
+ob_end_clean();
+
+define('IFRAME_REQUEST' , true);
+
+/** WordPress Administration Bootstrap */
+require_once( preg_replace( "/wp-content.*/", "/wp-admin/admin.php", __FILE__ ) );
+
+header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
+
+if( !current_user_can('edit_posts') )
+    wp_die( __( 'Access Denied.' ) );
+
+if( !function_exists( 'get_default_post_to_edit' ) )
+    wp_die( __( 'Error 0001' ) );
+
+// let's create our post
+$post       = get_default_post_to_edit( 'post', true );
+$post_ID    = $post->ID;
+
+// Set Variables
+$title = isset( $_GET['t'] ) ? trim( strip_tags( html_entity_decode( stripslashes( $_GET['t'] ) , ENT_QUOTES) ) ) : '';
+
+$selection = '';
+if ( !empty($_GET['s']) ) {
+    $selection = str_replace('&apos;', "'", stripslashes($_GET['s']));
+    $selection = trim( htmlspecialchars( html_entity_decode($selection, ENT_QUOTES) ) );
+}
+
+if ( ! empty($selection) ) {
+    // $selection = preg_replace('/(\r?\n|\r)/', '</p><p>', $selection);
+    // $selection = '<p>' . str_replace('<p></p>', '', $selection) . '</p>';
+}
+
+$url = isset($_GET['u']) ? esc_url($_GET['u']) : '';
+$image = isset($_GET['i']) ? $_GET['i'] : '';
+
+function linkmarklet_post()
+{
+    $post = get_default_post_to_edit();
+    $post = get_object_vars($post);
+    $post_ID = $post['ID'] = (int) $_POST['post_id'];
+
+    if ( !current_user_can('edit_post', $post_ID) )
+        wp_die(__('You are not allowed to edit this post.'));
+
+    $post['post_category'] = isset($_POST['post_category']) ? (int) $_POST['post_category'] : 0;
+    $post['tax_input'] = isset($_POST['tax_input']) ? $_POST['tax_input'] : '';
+    $post['post_title'] = isset($_POST['title']) ? $_POST['title'] : '';
+    $content = isset($_POST['content']) ? $_POST['content'] : '';
+
+    // set the post_content and status
+    $post['post_content'] = $content;
+    if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
+        $post['post_status'] = 'publish';
+    elseif ( isset( $_POST['review'] ) )
+        $post['post_status'] = 'pending';
+    else
+        $post['post_status'] = 'draft';
+
+    if ( isset( $_POST['post_format'] ) )
+    {
+        if ( current_theme_supports( 'post-formats', $_POST['post_format'] ) )
+            set_post_format( $post_ID, $_POST['post_format'] );
+        elseif ( '0' == $_POST['post_format'] )
+            set_post_format( $post_ID, false );
+    }
+
+    $post['post_category'] = array( $post['post_category'] );
+
+    $post['post_name'] = sanitize_title( $_POST['slug'] );
+
+    $post_ID = wp_update_post( $post );
+
+    // we also need to add our custom field link
+    $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
+    $custom_field   = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
+    if( !empty( $custom_field ) )
+        update_post_meta( $post_ID, $custom_field, mysql_real_escape_string($_POST['url']) );
+
+    return $post_ID;
+}
+
+
+?><!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Linkmarklet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background:#fff;
+            font:12px Helvetica, Arial, sans-serif;
+            color:#020204;
+            margin:0;
+            padding:0;
+        }
+        .hidden {
+            display:none !important;
+        }
+        div.actions {
+            border-top:1px solid #373739;
+            padding:8px;
+            overflow:hidden;
+            zoom:1;
+            background: #2a292e;
+            background: -moz-linear-gradient(top,  #2a292e 0%, #201f24 70%, #020204 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#2a292e), color-stop(70%,#201f24), color-stop(100%,#020204));
+            background: -webkit-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
+            background: -o-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
+            background: -ms-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
+        }
+        div.actions button {
+            display:block;
+            float:right;
+            color:#EAEBED;
+            font-weight:normal;
+            margin:0;
+            border-radius:5px;
+            border:1px solid #000;
+            background: #2a292e;
+            background: -moz-linear-gradient(top,  #2a292e 0%, #201f24 70%, #020204 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#2a292e), color-stop(70%,#201f24), color-stop(100%,#020204));
+            background: -webkit-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
+            background: -o-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
+            background: -ms-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
+            padding:5px 11px;
+            cursor:pointer;
+        }
+        div.field {
+            overflow:hidden;
+            zoom:1;
+            position:relative;
+            border-top:1px solid #CBCBCB;
+            padding:8px;
+        }
+        div.field label {
+            width:110px;
+            position:absolute;
+            left:8px;
+            top:12px;
+            color:#bbb;
+        }
+        div.field input {
+            display:block;
+            width:90%;
+            margin-left:110px;
+            font-size:12px;
+            border:0;
+            -webkit-appearance:none;
+        }
+        div.textarea label {
+            display:none;
+        }
+        div.textarea {
+            height:200px;
+        }
+        div.field textarea {
+            display:block;
+            width:99%;
+            height:200px;
+            font-size:12px;
+            border:0;
+            -webkit-appearance:none;
+            resize:none;
+        }
+        .message {
+            padding:15px;
+            max-width:600px;
+            margin:0 auto;
+        }
+        .message p {
+            border-radius:5px;
+            text-align:center;
+            background:#efefef;
+            border:1px solid #ccc;
+            padding:8px 15px;
+        }
+        .message a {
+            color:#238FF1;
+        }
+    </style>
+</head>
+<body>
+<?php
+    if( isset( $_REQUEST['_wpnonce'] ) )
+    {
+        check_admin_referer( 'linkmarklet-press-this' );
+        $posted = $post_ID = linkmarklet_post(); ?>
+
+        <div class="message">
+            <p>Entry posted. <a onclick="window.opener.location.replace(this.href); window.close();" href="<?php echo get_permalink( $posted ); ?>">View post</a></p>
+        </div>
+
+<?php } else { ?>
+    <form action="" method="post">
+        <div class="hidden">
+            <?php wp_nonce_field( 'linkmarklet-press-this' ); ?>
+            <input type="hidden" name="post_type" id="post_type" value="text"/>
+            <input type="hidden" name="autosave" id="autosave" />
+            <input type="hidden" id="original_post_status" name="original_post_status" value="draft" />
+            <input type="hidden" id="prev_status" name="prev_status" value="draft" />
+            <input type="hidden" id="post_id" name="post_id" value="<?php echo (int) $post_ID; ?>" />
+            <input type="hidden" id="publish" name="publish" value="publish" />
+            <?php
+                $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
+                if( isset( $settings['category'] ) ) : ?>
+                    <input type="hidden" id="post_category" name="post_category" value="<?php echo $settings['category']; ?>" />
+            <?php endif; ?>
+        </div>
+        <div class="actions">
+            <button type="submit">Post</button>
+        </div>
+        <div class="field textfield">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title" value="<?php echo $title; ?>" />
+        </div>
+        <div class="field textfield">
+            <label for="url">Link URL</label>
+            <input type="text" name="url" id="url" value="<?php echo $url; ?>" />
+        </div>
+        <div class="field textfield">
+            <label for="slug">Slug</label>
+            <input type="text" name="slug" id="slug" value="<?php echo sanitize_title( $title ); ?>" />
+        </div>
+        <div class="field textarea">
+            <label for="content">Content</label>
+            <textarea name="content" id="content"><?php echo $selection; ?></textarea>
+        </div>
+    </form>
+<?php } ?>
+</body>
+</html>
