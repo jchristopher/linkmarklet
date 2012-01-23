@@ -57,6 +57,14 @@ class Linkmarklet
             LINKMARKLET_PREFIX . 'options',
             LINKMARKLET_PREFIX . 'options'
         );
+
+        add_settings_field(
+            LINKMARKLET_PREFIX . 'bookmarklet',
+            'Bookmarklet',
+            array( 'Linkmarklet', 'edit_bookmarklet' ),
+            LINKMARKLET_PREFIX . 'options',
+            LINKMARKLET_PREFIX . 'options'
+        );
     }
 
     function validate_settings( $input )
@@ -64,12 +72,19 @@ class Linkmarklet
         return $input;
     }
 
-    function edit_options()
+    function edit_bookmarklet()
     {
         $linkmarklet = "javascript:var%20d=document,w=window,e=w.getSelection,k=d.getSelection,x=d.selection,s=(e?e():(k)?k():(x?x.createRange().text:0)),f='" . LINKMARKLET_URL . "',l=d.location,e=encodeURIComponent,u=f+'?u='+e(l.href)+'&t='+e(d.title)+'&s='+e(s)+'&v=4';a=function(){if(!w.open(u,'t','toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570'))l.href=u;};if%20(/Firefox/.test(navigator.userAgent))%20setTimeout(a,%200);%20else%20a();void(0)";
         ?>
-        <p><strong>Bookmarklet:</strong> Drag the Linkmarklet bookmarklet to your bookmark bar: <a href="<?php echo $linkmarklet; ?>">Linkmarklet</a></p>
-    <?php }
+        <p>Drag the Linkmarklet bookmarklet to your bookmark bar: <a href="<?php echo $linkmarklet; ?>">Linkmarklet</a></p>
+        <p><strong>Alternative:</strong> Open <a href="<?php echo LINKMARKLET_URL . '/remove-this.php?' . $linkmarklet; ?>">this URL</a> in a new page, save it as a bookmark, <em>remove everything</em> before <code>javascript:</code>, and save</p>
+        <?php
+    }
+
+    function edit_options()
+    {
+
+    }
 
     function edit_category()
     {
