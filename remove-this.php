@@ -3,8 +3,8 @@ ob_start();
 require_once( preg_replace( "/wp-content.*/", "wp-load.php", __FILE__ ) );
 require_once( preg_replace( "/wp-content.*/", "/wp-admin/includes/admin.php", __FILE__ ) );
 ob_end_clean();
-
 ?>
+<!DOCTYPE html>
 <html>
     <head>
         <title>Linkmarklet</title>
