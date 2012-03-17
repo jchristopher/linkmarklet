@@ -4,14 +4,14 @@ Plugin Name: Linkmarklet
 Plugin URI: http://wordpress.org/extend/plugins/linkmarklet/
 Description: Alternate to Press This!
 Author: Jonathan Christopher
-Version: 0.1
+Version: 0.2
 Author URI: http://mondaybynoon.com/
 */
 
 if( !defined( 'IS_ADMIN' ) )
     define( 'IS_ADMIN', is_admin() );
 
-define( 'LINKMARKLET_VERSION', '0.1' );
+define( 'LINKMARKLET_VERSION', '0.2' );
 define( 'LINKMARKLET_PREFIX', '_iti_linkmarklet_' );
 define( 'LINKMARKLET_DIR', WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) );
 define( 'LINKMARKLET_URL', rtrim( plugin_dir_url( __FILE__ ), '/' ) );
@@ -54,6 +54,14 @@ class Linkmarklet
             LINKMARKLET_PREFIX . 'custom_field',
             'Link Custom Field',
             array( 'Linkmarklet', 'edit_custom_field' ),
+            LINKMARKLET_PREFIX . 'options',
+            LINKMARKLET_PREFIX . 'options'
+        );
+
+        add_settings_field(
+            LINKMARKLET_PREFIX . 'prepopulate_slug',
+            'Pre-populate Slug',
+            array( 'Linkmarklet', 'edit_prepopulate_slug' ),
             LINKMARKLET_PREFIX . 'options',
             LINKMARKLET_PREFIX . 'options'
         );
@@ -106,6 +114,15 @@ class Linkmarklet
         $custom_field   = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[custom_field]" type="text" id="linkmarklet_custom_field" value="<?php echo $custom_field; ?>" class="regular-text"> <span class="description">Your <strong>Link</strong> will be saved to this Custom Field</span>
+        <?
+    }
+
+    function edit_prepopulate_slug()
+    {
+        $settings           = get_option( LINKMARKLET_PREFIX . 'settings' );
+        $prepopulate_slug   = isset( $settings['prepopulate_slug'] ) ? $settings['prepopulate_slug'] : '';
+        ?>
+            <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[prepopulate_slug]" type="checkbox" id="linkmarklet_prepopulate_slug" value="1" <?php if( $prepopulate_slug ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Auto-generate a slug</span>
         <?
     }
 

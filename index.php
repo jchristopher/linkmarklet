@@ -56,8 +56,6 @@ function linkmarklet_post()
     $post['post_content'] = $content;
     if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
         $post['post_status'] = 'publish';
-    elseif ( isset( $_POST['review'] ) )
-        $post['post_status'] = 'pending';
     else
         $post['post_status'] = 'draft';
 
@@ -90,8 +88,9 @@ function linkmarklet_post()
 <head>
     <meta charset="utf-8">
     <title>Linkmarklet</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <style>
+        * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
         body {
             background:#fff;
             font:12px Helvetica, Arial, sans-serif;
@@ -114,7 +113,7 @@ function linkmarklet_post()
             background: -o-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
             background: -ms-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
         }
-        div.actions button {
+        div.actions input {
             display:block;
             float:right;
             color:#EAEBED;
@@ -130,6 +129,9 @@ function linkmarklet_post()
             background: -ms-linear-gradient(top,  #2a292e 0%,#201f24 70%,#020204 100%);
             padding:5px 11px;
             cursor:pointer;
+        }
+        div.actions input:first-of-type {
+            float:left;
         }
         div.field {
             overflow:hidden;
@@ -147,26 +149,33 @@ function linkmarklet_post()
         }
         div.field input {
             display:block;
-            width:90%;
-            margin-left:110px;
+            width:100%;
+            padding-left:110px;
             font-size:12px;
             border:0;
             -webkit-appearance:none;
+        }
+        div.field input:focus {
+            outline:none;
         }
         div.textarea label {
             display:none;
         }
         div.textarea {
-            height:200px;
+            min-height:200px;
         }
         div.field textarea {
             display:block;
-            width:99%;
-            height:200px;
+            width:100%;
+            min-height:200px;
+            height:100%;
             font-size:12px;
             border:0;
             -webkit-appearance:none;
             resize:none;
+        }
+        div.field textarea:focus {
+            outline:none;
         }
         .message {
             padding:15px;
@@ -190,7 +199,9 @@ function linkmarklet_post()
     if( isset( $_REQUEST['_wpnonce'] ) )
     {
         check_admin_referer( 'linkmarklet-press-this' );
-        $posted = $post_ID = linkmarklet_post(); ?>
+        $posted = $post_ID = linkmarklet_post();
+        // print_r($_POST);
+        ?>
 
         <div class="message">
             <p>Entry posted. <a onclick="window.opener.location.replace(this.href); window.close();" href="<?php echo get_permalink( $posted ); ?>">View post</a></p>
@@ -205,33 +216,48 @@ function linkmarklet_post()
             <input type="hidden" id="original_post_status" name="original_post_status" value="draft" />
             <input type="hidden" id="prev_status" name="prev_status" value="draft" />
             <input type="hidden" id="post_id" name="post_id" value="<?php echo (int) $post_ID; ?>" />
-            <input type="hidden" id="publish" name="publish" value="publish" />
             <?php
                 $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
                 if( isset( $settings['category'] ) ) : ?>
                     <input type="hidden" id="post_category" name="post_category" value="<?php echo $settings['category']; ?>" />
             <?php endif; ?>
         </div>
-        <div class="actions">
-            <button type="submit">Post</button>
+        <div class="actions" id="row-actions">
+            <input type="submit" name="save" id="save" value="Save" />
+            <input type="submit" name="publish" id="publish" value="Publish" />
         </div>
-        <div class="field textfield">
+        <div class="field textfield" id="row-title">
             <label for="title">Title</label>
             <input type="text" name="title" id="title" value="<?php echo $title; ?>" />
         </div>
-        <div class="field textfield">
+        <div class="field textfield" id="row-url">
             <label for="url">Link URL</label>
             <input type="text" name="url" id="url" value="<?php echo $url; ?>" />
         </div>
-        <div class="field textfield">
+        <div class="field textfield" id="row-slug">
             <label for="slug">Slug</label>
-            <input type="text" name="slug" id="slug" value="<?php echo sanitize_title( $title ); ?>" />
+            <input type="text" name="slug" id="slug" value="<?php if( isset( $settings['prepopulate_slug'] ) ) { echo sanitize_title( $title ); } ?>" />
         </div>
-        <div class="field textarea">
+        <div class="field textarea" id="row-content">
             <label for="content">Content</label>
             <textarea name="content" id="content"><?php echo $selection; ?></textarea>
         </div>
     </form>
 <?php } ?>
+<script type="text/javascript">
+    function reposition(){
+        var window_height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0;
+        var actions = document.getElementById('row-actions').offsetHeight;
+        var title = document.getElementById('row-title').offsetHeight;
+        var url = document.getElementById('row-url').offsetHeight;
+        var slug = document.getElementById('row-slug').offsetHeight;
+        var height = window_height - actions - title - url - slug - 25;
+        document.getElementById('content').style.height = height + 'px';
+    }
+    reposition();
+    window.onresize = function(event) {
+        reposition();
+    }
+</script>
 </body>
 </html>
