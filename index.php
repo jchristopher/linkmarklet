@@ -1,21 +1,17 @@
 <?php
+define('IFRAME_REQUEST' , true);
+
 ob_start();
 require_once( preg_replace( "/wp-content.*/", "wp-load.php", __FILE__ ) );
 require_once( preg_replace( "/wp-content.*/", "/wp-admin/includes/admin.php", __FILE__ ) );
-ob_end_clean();
-
-define('IFRAME_REQUEST' , true);
-
 /** WordPress Administration Bootstrap */
 require_once( preg_replace( "/wp-content.*/", "/wp-admin/admin.php", __FILE__ ) );
+ob_end_clean();
 
 header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
 
-if( !current_user_can('edit_posts') )
+if ( ! current_user_can( 'edit_posts' ) || ! current_user_can( get_post_type_object( 'post' )->cap->create_posts ) )
     wp_die( __( 'Access Denied.' ) );
-
-if( !function_exists( 'get_default_post_to_edit' ) )
-    wp_die( __( 'Error 0001' ) );
 
 // let's create our post
 $post       = get_default_post_to_edit( 'post', true );
@@ -40,44 +36,57 @@ $image = isset($_GET['i']) ? $_GET['i'] : '';
 
 function linkmarklet_post()
 {
-    $post = get_default_post_to_edit();
-    $post = get_object_vars($post);
-    $post_ID = $post['ID'] = (int) $_POST['post_id'];
+    $post       = get_default_post_to_edit();
+    $post       = get_object_vars( $post );
+    $post_ID    = $post['ID'] = intval( $_POST['post_id'] );
 
-    if ( !current_user_can('edit_post', $post_ID) )
-        wp_die(__('You are not allowed to edit this post.'));
+    if( !current_user_can( 'edit_post', $post_ID ) )
+        wp_die( __( 'You are not allowed to edit this post.' ) );
 
-    $post['post_category'] = isset($_POST['post_category']) ? (int) $_POST['post_category'] : 0;
-    $post['tax_input'] = isset($_POST['tax_input']) ? $_POST['tax_input'] : '';
-    $post['post_title'] = isset($_POST['title']) ? $_POST['title'] : '';
-    $content = isset($_POST['content']) ? $_POST['content'] : '';
+    // set our category
+    $settings               = get_option( LINKMARKLET_PREFIX . 'settings' );
+    $post['post_category']  = !empty( $settings['category'] ) ? intval( $settings['category'] ) : 0;
+
+    // set our post properties
+    $post['post_title']     = isset( $_POST['title'] ) ? sanitize_text_field( $_POST['title'] ) : '';
+    $content                = isset( $_POST['content'] ) ? esc_textarea( $_POST['content'] ) : '';
 
     // set the post_content and status
-    $post['post_content'] = $content;
-    $post['post_status'] = 'draft';
+    $post['post_content']   = $content;
+    $post['post_status']    = 'draft';
 
-    if ( isset( $_POST['post_format'] ) )
+    // set our post format
+    if( isset( $settings['post_format'] ) )
     {
-        if ( current_theme_supports( 'post-formats', $_POST['post_format'] ) )
-            set_post_format( $post_ID, $_POST['post_format'] );
-        elseif ( '0' == $_POST['post_format'] )
+        if( current_theme_supports( 'post-formats', $settings['post_format'] ) )
+        {
+            set_post_format( $post_ID, $settings['post_format'] );
+        }
+        else
+        {
             set_post_format( $post_ID, false );
+        }
     }
 
+    // set the category
     $post['post_category'] = array( $post['post_category'] );
 
+    // set the slug
     $post['post_name'] = sanitize_title( $_POST['slug'] );
 
+    // update what we've set
     $post_ID = wp_update_post( $post );
 
     // we also need to add our custom field link
-    $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
-    $custom_field   = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
+    $custom_field = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
     if( !empty( $custom_field ) )
-        update_post_meta( $post_ID, $custom_field, mysql_real_escape_string($_POST['url']) );
+        update_post_meta( $post_ID, $custom_field, mysql_real_escape_string( $_POST['url'] ) );
 
+    // mark as published if that's the intention
     if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
-      $post['post_status'] = 'publish';
+        $post['post_status'] = 'publish';
+
+    // our final update
     $post_ID = wp_update_post( $post );
 
     return $post_ID;
@@ -201,7 +210,6 @@ function linkmarklet_post()
     {
         check_admin_referer( 'linkmarklet-press-this' );
         $posted = $post_ID = linkmarklet_post();
-        // print_r($_POST);
         ?>
 
         <div class="message">
@@ -209,6 +217,7 @@ function linkmarklet_post()
         </div>
 
 <?php } else { ?>
+    <?php $settings = get_option( LINKMARKLET_PREFIX . 'settings' ); ?>
     <form action="" method="post">
         <div class="hidden">
             <?php wp_nonce_field( 'linkmarklet-press-this' ); ?>
@@ -217,11 +226,6 @@ function linkmarklet_post()
             <input type="hidden" id="original_post_status" name="original_post_status" value="draft" />
             <input type="hidden" id="prev_status" name="prev_status" value="draft" />
             <input type="hidden" id="post_id" name="post_id" value="<?php echo (int) $post_ID; ?>" />
-            <?php
-                $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
-                if( isset( $settings['category'] ) ) : ?>
-                    <input type="hidden" id="post_category" name="post_category" value="<?php echo $settings['category']; ?>" />
-            <?php endif; ?>
         </div>
         <div class="actions" id="row-actions">
             <input type="submit" name="save" id="save" value="Save" />
@@ -237,7 +241,7 @@ function linkmarklet_post()
         </div>
         <div class="field textfield" id="row-slug">
             <label for="slug">Slug</label>
-            <input type="text" name="slug" id="slug" value="<?php if( isset( $settings['prepopulate_slug'] ) ) { echo sanitize_title( $title ); } ?>" />
+            <input type="text" name="slug" id="slug" value="<?php if( isset( $settings['prepopulate_slug'] ) ) { echo sanitize_title( $title ); } else { echo 'hmm'; } ?>" />
         </div>
         <div class="field textarea" id="row-content">
             <label for="content">Content</label>

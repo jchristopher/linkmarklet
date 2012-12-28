@@ -4,17 +4,17 @@ Plugin Name: Linkmarklet
 Plugin URI: http://wordpress.org/extend/plugins/linkmarklet/
 Description: Alternate to Press This!
 Author: Jonathan Christopher
-Version: 0.2
+Version: 0.3
 Author URI: http://mondaybynoon.com/
 */
 
 if( !defined( 'IS_ADMIN' ) )
     define( 'IS_ADMIN', is_admin() );
 
-define( 'LINKMARKLET_VERSION', '0.2' );
-define( 'LINKMARKLET_PREFIX', '_iti_linkmarklet_' );
-define( 'LINKMARKLET_DIR', WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) );
-define( 'LINKMARKLET_URL', rtrim( plugin_dir_url( __FILE__ ), '/' ) );
+define( 'LINKMARKLET_VERSION',  '0.3' );
+define( 'LINKMARKLET_PREFIX',   '_iti_linkmarklet_' );
+define( 'LINKMARKLET_DIR',      WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) );
+define( 'LINKMARKLET_URL',      rtrim( plugin_dir_url( __FILE__ ), '/' ) );
 
 add_action( 'admin_menu', array( 'Linkmarklet', 'assets' ) );
 add_action( 'admin_init', array( 'Linkmarklet', 'register_settings' ) );
@@ -46,6 +46,14 @@ class Linkmarklet
             LINKMARKLET_PREFIX . 'category',
             'Category',
             array( 'Linkmarklet', 'edit_category' ),
+            LINKMARKLET_PREFIX . 'options',
+            LINKMARKLET_PREFIX . 'options'
+        );
+
+        add_settings_field(
+            LINKMARKLET_PREFIX . 'post_format',
+            'Post Format',
+            array( 'Linkmarklet', 'edit_post_format' ),
             LINKMARKLET_PREFIX . 'options',
             LINKMARKLET_PREFIX . 'options'
         );
@@ -97,7 +105,7 @@ class Linkmarklet
     function edit_category()
     {
         $settings   = get_option( LINKMARKLET_PREFIX . 'settings' );
-        $categories = get_categories( 'hide_empty=0');
+        $categories = get_categories( 'hide_empty=0' );
         ?>
         <select name="<?php echo LINKMARKLET_PREFIX; ?>settings[category]">
             <option value="0">- No Category -</option>
@@ -106,6 +114,25 @@ class Linkmarklet
             <?php endforeach; ?>
         </select>
         <?
+    }
+
+    function edit_post_format()
+    {
+        if( !current_theme_supports( 'post-formats' ) )
+            return;
+
+        $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
+        $post_formats   = get_theme_support( 'post-formats' );
+        ?>
+            <select name="<?php echo LINKMARKLET_PREFIX; ?>settings[post_format]">
+                <?php if ( is_array( $post_formats[0] ) ) : ?>
+                    <option value="0">Standard</option>
+                    <?php foreach( $post_formats[0] as $post_format ) : ?>
+                        <option value="<?php echo esc_attr( $post_format ); ?>"<?php if( isset( $settings['post_format'] ) && $settings['post_format'] == $post_format ) : ?> selected="selected"<?php endif; ?>><?php echo ucfirst( $post_format ); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        <?php
     }
 
     function edit_custom_field()
