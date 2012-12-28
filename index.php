@@ -54,10 +54,7 @@ function linkmarklet_post()
 
     // set the post_content and status
     $post['post_content'] = $content;
-    if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
-        $post['post_status'] = 'publish';
-    else
-        $post['post_status'] = 'draft';
+    $post['post_status'] = 'draft';
 
     if ( isset( $_POST['post_format'] ) )
     {
@@ -78,6 +75,10 @@ function linkmarklet_post()
     $custom_field   = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
     if( !empty( $custom_field ) )
         update_post_meta( $post_ID, $custom_field, mysql_real_escape_string($_POST['url']) );
+
+    if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
+      $post['post_status'] = 'publish';
+    $post_ID = wp_update_post( $post );
 
     return $post_ID;
 }
