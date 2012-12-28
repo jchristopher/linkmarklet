@@ -4,14 +4,14 @@ Plugin Name: Linkmarklet
 Plugin URI: http://wordpress.org/extend/plugins/linkmarklet/
 Description: Alternate to Press This!
 Author: Jonathan Christopher
-Version: 0.3
+Version: 0.4
 Author URI: http://mondaybynoon.com/
 */
 
 if( !defined( 'IS_ADMIN' ) )
     define( 'IS_ADMIN', is_admin() );
 
-define( 'LINKMARKLET_VERSION',  '0.3' );
+define( 'LINKMARKLET_VERSION',  '0.4' );
 define( 'LINKMARKLET_PREFIX',   '_iti_linkmarklet_' );
 define( 'LINKMARKLET_DIR',      WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) );
 define( 'LINKMARKLET_URL',      rtrim( plugin_dir_url( __FILE__ ), '/' ) );
@@ -62,6 +62,14 @@ class Linkmarklet
             LINKMARKLET_PREFIX . 'custom_field',
             'Link Custom Field',
             array( 'Linkmarklet', 'edit_custom_field' ),
+            LINKMARKLET_PREFIX . 'options',
+            LINKMARKLET_PREFIX . 'options'
+        );
+
+        add_settings_field(
+            LINKMARKLET_PREFIX . 'future_publish',
+            'Future Publish',
+            array( 'Linkmarklet', 'edit_future_publish' ),
             LINKMARKLET_PREFIX . 'options',
             LINKMARKLET_PREFIX . 'options'
         );
@@ -141,6 +149,16 @@ class Linkmarklet
         $custom_field   = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[custom_field]" type="text" id="linkmarklet_custom_field" value="<?php echo $custom_field; ?>" class="regular-text"> <span class="description">Your <strong>Link</strong> will be saved to this Custom Field</span>
+        <?
+    }
+
+    function edit_future_publish()
+    {
+        $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
+        $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : 0;
+        $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : 0;
+        ?>
+            When I click Publish, set the publication date &amp; time to be random but within <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes of my future-most scheduled post. <br /><span class="description">Leave each as zero to disable. If there is nothing scheduled, the post will be published instantly.</span>
         <?
     }
 

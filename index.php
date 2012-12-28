@@ -8,7 +8,7 @@ require_once( preg_replace( "/wp-content.*/", "/wp-admin/includes/admin.php", __
 require_once( preg_replace( "/wp-content.*/", "/wp-admin/admin.php", __FILE__ ) );
 ob_end_clean();
 
-header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
+header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
 
 if ( ! current_user_can( 'edit_posts' ) || ! current_user_can( get_post_type_object( 'post' )->cap->create_posts ) )
     wp_die( __( 'Access Denied.' ) );
@@ -22,7 +22,7 @@ $title = isset( $_GET['t'] ) ? trim( strip_tags( html_entity_decode( stripslashe
 
 $selection = '';
 if ( !empty($_GET['s']) ) {
-    $selection = str_replace('&apos;', "'", stripslashes($_GET['s']));
+    $selection = str_replace( '&apos;', "'", stripslashes( $_GET['s'] ) );
     $selection = trim( htmlspecialchars( html_entity_decode($selection, ENT_QUOTES) ) );
 }
 
@@ -36,6 +36,61 @@ $image = isset($_GET['i']) ? $_GET['i'] : '';
 
 function linkmarklet_post()
 {
+
+    $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
+
+    // set our time (if applicable)
+    $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : 0;
+    $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : 0;
+    $timestamp      = '';
+    $timestamp_gmt  = '';
+
+    $future_publish = false;
+
+    if( $timeframe_min !== 0 && $timeframe_max !== 0 )
+    {
+        // set the post date
+
+        // figure out our start time which is either right now, or the future-most post
+
+        // by default it'll be right now
+        $timestamp      = (int) current_time( 'timestamp' );
+        $timestamp_gmt  = (int) current_time( 'timestamp', 1 );
+
+        $args = array(
+                'numberposts'   => 1,       // just want the newest post
+                'post_status'   => 'any'    // regardless of format
+            );
+        $posts_array = get_posts( $args );
+
+        // if there are any posts, we can check it out
+        if( $posts_array )
+        {
+            foreach( $posts_array as $post )
+            {
+                setup_postdata( $post );
+                $post_timestamp = strtotime( $post->post_date );
+            }
+        }
+
+        // get the future-most timestamp and use that
+        if( $post_timestamp > $timestamp )
+        {
+            $future_publish = true;
+
+            // our timestamps need to be adjusted
+            $timestamp      = $post_timestamp;
+            $timestamp_gmt  = $post_timestamp + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
+
+            // determine how many seconds we'll offset
+            $offset = rand( $timeframe_min, $timeframe_max ) * 60;
+
+            // the post is scheduled so we need to offset both
+            $timestamp          = date( 'Y-m-d H:i:s', $timestamp + $offset );
+            $timestamp_gmt      = date( 'Y-m-d H:i:s', $timestamp_gmt + $offset );
+        }
+    }
+
     $post       = get_default_post_to_edit();
     $post       = get_object_vars( $post );
     $post_ID    = $post['ID'] = intval( $_POST['post_id'] );
@@ -44,7 +99,6 @@ function linkmarklet_post()
         wp_die( __( 'You are not allowed to edit this post.' ) );
 
     // set our category
-    $settings               = get_option( LINKMARKLET_PREFIX . 'settings' );
     $post['post_category']  = !empty( $settings['category'] ) ? intval( $settings['category'] ) : 0;
 
     // set our post properties
@@ -54,6 +108,14 @@ function linkmarklet_post()
     // set the post_content and status
     $post['post_content']   = $content;
     $post['post_status']    = 'draft';
+
+    // set the time attributes we want
+    if( $future_publish )
+    {
+        $post['edit_date']      = $timestamp;
+        $post['post_date']      = $timestamp;
+        $post['post_date_gmt']  = $timestamp_gmt;
+    }
 
     // set our post format
     if( isset( $settings['post_format'] ) )
@@ -77,14 +139,21 @@ function linkmarklet_post()
     // update what we've set
     $post_ID = wp_update_post( $post );
 
+    // mark as published if that's the intention
+    if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
+    {
+        if( $future_publish )
+        {
+            // $post['post_date']      = $timestamp;
+            // $post['post_date_gmt']  = $timestamp_gmt;
+            $post['post_status']    = 'future';
+        }
+    }
+
     // we also need to add our custom field link
     $custom_field = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
     if( !empty( $custom_field ) )
         update_post_meta( $post_ID, $custom_field, mysql_real_escape_string( $_POST['url'] ) );
-
-    // mark as published if that's the intention
-    if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
-        $post['post_status'] = 'publish';
 
     // our final update
     $post_ID = wp_update_post( $post );
