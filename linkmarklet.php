@@ -127,7 +127,10 @@ class Linkmarklet
     function edit_post_format()
     {
         if( !current_theme_supports( 'post-formats' ) )
+        {
+            echo 'Your active theme does not support Post Formats.';
             return;
+        }
 
         $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
         $post_formats   = get_theme_support( 'post-formats' );
