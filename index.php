@@ -144,9 +144,11 @@ function linkmarklet_post()
     {
         if( $future_publish )
         {
-            // $post['post_date']      = $timestamp;
-            // $post['post_date_gmt']  = $timestamp_gmt;
             $post['post_status']    = 'future';
+        }
+        else
+        {
+            $post['post_status']    = 'publish';
         }
     }
 
@@ -154,6 +156,10 @@ function linkmarklet_post()
     $custom_field = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
     if( !empty( $custom_field ) )
         update_post_meta( $post_ID, $custom_field, mysql_real_escape_string( $_POST['url'] ) );
+
+    // set our post tags if applicable
+    if( !empty( $settings['support_tags'] ) )
+        wp_set_post_tags( $post_ID, $_POST['tags'] );
 
     // our final update
     $post_ID = wp_update_post( $post );
@@ -310,8 +316,14 @@ function linkmarklet_post()
         </div>
         <div class="field textfield" id="row-slug">
             <label for="slug">Slug</label>
-            <input type="text" name="slug" id="slug" value="<?php if( isset( $settings['prepopulate_slug'] ) ) { echo sanitize_title( $title ); } else { echo 'hmm'; } ?>" />
+            <input type="text" name="slug" id="slug" value="<?php if( isset( $settings['prepopulate_slug'] ) ) { echo sanitize_title( $title ); } ?>" />
         </div>
+        <?php if( !empty( $settings['support_tags'] ) ) : ?>
+            <div class="field textfield" id="row-tags">
+                <label for="url">Tags</label>
+                <input type="text" name="tags" id="tags" value="" />
+            </div>
+        <?php endif; ?>
         <div class="field textarea" id="row-content">
             <label for="content">Content</label>
             <textarea name="content" id="content"><?php echo $selection; ?></textarea>
@@ -320,12 +332,16 @@ function linkmarklet_post()
 <?php } ?>
 <script type="text/javascript">
     function reposition(){
-        var window_height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0;
-        var actions = document.getElementById('row-actions').offsetHeight;
-        var title = document.getElementById('row-title').offsetHeight;
-        var url = document.getElementById('row-url').offsetHeight;
-        var slug = document.getElementById('row-slug').offsetHeight;
-        var height = window_height - actions - title - url - slug - 25;
+        var window_height   = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0;
+        var actions         = document.getElementById('row-actions').offsetHeight;
+        var title           = document.getElementById('row-title').offsetHeight;
+        var url             = document.getElementById('row-url').offsetHeight;
+        var slug            = document.getElementById('row-slug').offsetHeight;
+        var height          = window_height - actions - title - url - slug - 25;
+        <?php if( !empty( $settings['support_tags'] ) ) : ?>
+        var tags            = document.getElementById('row-tags').offsetHeight;
+        height = height - tags;
+        <?php endif; ?>
         document.getElementById('content').style.height = height + 'px';
     }
     reposition();

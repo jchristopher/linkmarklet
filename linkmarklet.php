@@ -83,6 +83,14 @@ class Linkmarklet
         );
 
         add_settings_field(
+            LINKMARKLET_PREFIX . 'support_tags',
+            'Support Tags',
+            array( 'Linkmarklet', 'edit_support_tags' ),
+            LINKMARKLET_PREFIX . 'options',
+            LINKMARKLET_PREFIX . 'options'
+        );
+
+        add_settings_field(
             LINKMARKLET_PREFIX . 'bookmarklet',
             'Bookmarklet',
             array( 'Linkmarklet', 'edit_bookmarklet' ),
@@ -168,9 +176,18 @@ class Linkmarklet
     function edit_prepopulate_slug()
     {
         $settings           = get_option( LINKMARKLET_PREFIX . 'settings' );
-        $prepopulate_slug   = isset( $settings['prepopulate_slug'] ) ? $settings['prepopulate_slug'] : '';
+        $prepopulate_slug   = isset( $settings['prepopulate_slug'] ) ? true : false;
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[prepopulate_slug]" type="checkbox" id="linkmarklet_prepopulate_slug" value="1" <?php if( $prepopulate_slug ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Auto-generate a slug</span>
+        <?
+    }
+
+    function edit_support_tags()
+    {
+        $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
+        $support_tags   = isset( $settings['support_tags'] ) ? true : false;
+        ?>
+            <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[support_tags]" type="checkbox" id="linkmarklet_support_tags" value="1" <?php if( $support_tags ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Include a field for tags</span>
         <?
     }
 
