@@ -27,7 +27,7 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 == Changelog ==
 
 = 0.4 =
-* Support for Future Publishing. If you're like me, you like to bulk-linkblog, but you don't want to innundate readers with tons of posts all at once. There's now a setting that will let you auto-schedule a post to go live within a timeframe after your future-most-scheduled post.
+* Support for Future Publishing. If you're like me, you like to bulk-linkblog, but you don't want to innundate readers with tons of posts all at once. There's now a setting that will let you auto-schedule a post to go live within a timeframe after your future-most-scheduled post. You can also set a 'bumper' of time between your most recently published posts.
 * Added (optional) support for Tags
 
 = 0.3 =

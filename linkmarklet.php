@@ -166,10 +166,14 @@ class Linkmarklet
     function edit_future_publish()
     {
         $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
-        $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : 0;
-        $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : 0;
+        $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : '';
+        $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : '';
+        $bumper         = isset( $settings['future_publish']['bumper'] ) ? intval( $settings['future_publish']['bumper'] ) : '';
+        $publish_start  = isset( $settings['future_publish']['start'] ) ? intval( $settings['future_publish']['start'] ) : '';
+        $publish_end    = isset( $settings['future_publish']['end'] ) ? intval( $settings['future_publish']['end'] ) : '';
         ?>
-            When I click Publish, set the publication date &amp; time to be random but within <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes of my future-most scheduled post. <br /><span class="description">Leave each as zero to disable. If there is nothing scheduled, the post will be published instantly.</span>
+            Posts should have at least <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][bumper]" type="text" id="linkmarklet_future_publish_bumper" value="<?php echo $bumper; ?>" class="small-text" /> minutes between them and I would also like to publish only between the hours of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][start]" type="text" id="linkmarklet_future_publish_start" value="<?php echo $publish_start; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][end]" type="text" id="linkmarklet_future_publish_end" value="<?php echo $publish_end; ?>" class="small-text" /><br /><span class="description">Leave empty to disable. 24 hour clock.</span><br /><br />
+            When I click Publish, set the publication date &amp; time to be random but within <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes of my future-most scheduled post. <br /><span class="description">Leave empty to disable. If there is nothing scheduled, the post will be published instantly.</span>
         <?
     }
 
