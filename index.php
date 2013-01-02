@@ -40,7 +40,7 @@ function linkmarklet_post()
     $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
 
     // set our time (if applicable)
-    $timeframe_min  = !isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : false;
+    $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : false;
     $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : false;
     $publish_start  = isset( $settings['future_publish']['start'] ) ? intval( $settings['future_publish']['start'] ) : false;
     $publish_end    = isset( $settings['future_publish']['end'] ) ? intval( $settings['future_publish']['end'] ) : false;
