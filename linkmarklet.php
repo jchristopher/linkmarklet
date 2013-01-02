@@ -97,6 +97,17 @@ class Linkmarklet
             LINKMARKLET_PREFIX . 'options',
             LINKMARKLET_PREFIX . 'options'
         );
+
+        if( is_plugin_active( 'markdown-on-save/markdown-on-save.php' ) )
+        {
+            add_settings_field(
+                LINKMARKLET_PREFIX . 'markdown',
+                'Markdown on Save',
+                array( 'Linkmarklet', 'edit_markdown' ),
+                LINKMARKLET_PREFIX . 'options',
+                LINKMARKLET_PREFIX . 'options'
+            );
+        }
     }
 
     function validate_settings( $input )
@@ -172,8 +183,7 @@ class Linkmarklet
         $publish_start  = isset( $settings['future_publish']['start'] ) ? intval( $settings['future_publish']['start'] ) : '';
         $publish_end    = isset( $settings['future_publish']['end'] ) ? intval( $settings['future_publish']['end'] ) : '';
         ?>
-            Posts should have at least <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][bumper]" type="text" id="linkmarklet_future_publish_bumper" value="<?php echo $bumper; ?>" class="small-text" /> minutes between them and I would also like to publish only between the hours of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][start]" type="text" id="linkmarklet_future_publish_start" value="<?php echo $publish_start; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][end]" type="text" id="linkmarklet_future_publish_end" value="<?php echo $publish_end; ?>" class="small-text" /><br /><span class="description">Leave empty to disable. 24 hour clock.</span><br /><br />
-            When I click Publish, set the publication date &amp; time to be random but within <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes of my future-most scheduled post. <br /><span class="description">Leave empty to disable. If there is nothing scheduled, the post will be published instantly.</span>
+            Delay publishing by using a range of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> to <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes. I would also like to publish only between the hours of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][start]" type="text" id="linkmarklet_future_publish_start" value="<?php echo $publish_start; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][end]" type="text" id="linkmarklet_future_publish_end" value="<?php echo $publish_end; ?>" class="small-text" /><br /><span class="description">Leave empty to disable. 24 hour clock.</span>
         <?
     }
 
@@ -192,6 +202,15 @@ class Linkmarklet
         $support_tags   = isset( $settings['support_tags'] ) ? true : false;
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[support_tags]" type="checkbox" id="linkmarklet_support_tags" value="1" <?php if( $support_tags ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Include a field for tags</span>
+        <?
+    }
+
+    function edit_markdown()
+    {
+        $settings   = get_option( LINKMARKLET_PREFIX . 'settings' );
+        $markdown   = isset( $settings['markdown'] ) ? true : false;
+        ?>
+            <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[markdown]" type="checkbox" id="linkmarklet_markdown" value="1" <?php if( $markdown ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Use Markdown on Save when publishing</span>
         <?
     }
 

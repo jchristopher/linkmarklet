@@ -42,7 +42,6 @@ function linkmarklet_post()
     // set our time (if applicable)
     $timeframe_min  = !isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : false;
     $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : false;
-    $bumper         = isset( $settings['future_publish']['bumper'] ) ? intval( $settings['future_publish']['bumper'] ) : false;
     $publish_start  = isset( $settings['future_publish']['start'] ) ? intval( $settings['future_publish']['start'] ) : false;
     $publish_end    = isset( $settings['future_publish']['end'] ) ? intval( $settings['future_publish']['end'] ) : false;
 
@@ -53,7 +52,7 @@ function linkmarklet_post()
     $future_publish = false;
 
     // check to see if we need to bump our publish time
-    if( $bumper || ( $timeframe_min !== false && $timeframe_max !== false ) )
+    if( $timeframe_min !== false && $timeframe_max !== false )
     {
         // set the post date
 
@@ -74,14 +73,6 @@ function linkmarklet_post()
                 setup_postdata( $post );
                 $post_timestamp = strtotime( $post->post_date );
             }
-        }
-
-        // check to see if we need to bump
-        if( $post_timestamp && $bumper && ( $post_timestamp - $timestamp < ( $bumper * 60 ) ) )
-        {
-            $future_publish = true;
-            $timestamp      = $post_timestamp + ( $bumper * 60 );
-            $timestamp_gmt  = $post_timestamp + ( $bumper * 60 ) - ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
         }
 
         // get the future-most timestamp and use that
@@ -145,6 +136,14 @@ function linkmarklet_post()
     // set the post_content and status
     $post['post_content']   = $content;
     $post['post_status']    = 'draft';
+
+    // Markdown on Save?
+    if( is_plugin_active( 'markdown-on-save/markdown-on-save.php' ) && !empty( $settings['markdown'] ) )
+    {
+        // we need to set up our post data to tell Markdown on Save we want to use it
+        $post['cws_using_markdown']     = 1;
+        $post['_cws_markdown_nonce']    = wp_create_nonce( 'cws-markdown-save' );
+    }
 
     // set the time attributes we want
     if( $future_publish )
