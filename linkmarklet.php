@@ -2,7 +2,7 @@
 /*
 Plugin Name: Linkmarklet
 Plugin URI: http://wordpress.org/extend/plugins/linkmarklet/
-Description: Alternate to Press This!
+Description: Alternate to Press This! specifically geared to linkblogging. Quickly post while saving a link to a Custom Field.
 Author: Jonathan Christopher
 Version: 0.4
 Author URI: http://mondaybynoon.com/

@@ -6,7 +6,7 @@ Requires at least: 3.3
 Tested up to: 3.5
 Stable tag: 0.4
 
-Linkmarklet is an alternative to the Press This! bookmarklet aimed at rapid link blogging.
+Linkmarklet is an alternative to the Press This! bookmarklet aimed at rapid linkblogging. Quickly post while saving a link to a Custom Field.
 
 == Description ==
 
