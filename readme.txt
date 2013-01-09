@@ -5,6 +5,8 @@ Tags: link, linkblog, press this
 Requires at least: 3.3
 Tested up to: 3.5
 Stable tag: 0.4
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Linkmarklet is an alternative to the Press This! bookmarklet aimed at rapid linkblogging. Quickly post while saving a link to a Custom Field.
 
@@ -21,14 +23,18 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 
 == Installation ==
 
-1. Upload Linkmarklet to your `/wp-content/plugins/` directory
+1. Download the plugin and extract the files
+1. Upload `linkmarklet` to your `~/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Install the bookmarklet provided on the `Settings > Linkmarklet` screen
+1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
 == Changelog ==
 
 = 0.4 =
 * Support for Future Publishing. If you're like me, you like to bulk-linkblog, but you don't want to innundate readers with tons of posts all at once. There's now a setting that will let you auto-schedule a post to go live within a timeframe after your future-most-scheduled post. You can also set a 'bumper' of time between your most recently published posts.
 * Added (optional) support for Tags
+* Initial support for [Markdown on Save](http://wordpress.org/extend/plugins/markdown-on-save/)
 
 = 0.3 =
 * Support for Post Formats
@@ -43,4 +49,5 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 
 == Screenshots ==
 
-1. The Linkmarklet UI
+1. Linkmarklet UI
+2. Linkmarklet Settings
