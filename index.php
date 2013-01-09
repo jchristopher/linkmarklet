@@ -1,4 +1,10 @@
 <?php
+
+global $linkmarklet_debug;
+
+$linkmarklet_debug = false;
+
+
 define('IFRAME_REQUEST' , true);
 
 ob_start();
@@ -17,8 +23,14 @@ if ( ! current_user_can( 'edit_posts' ) || ! current_user_can( get_post_type_obj
 $post       = get_default_post_to_edit( 'post', true );
 $post_ID    = $post->ID;
 
+if( $linkmarklet_debug )
+    error_log( '$post_ID = ' . $post_ID );
+
 // Set Variables
 $title = isset( $_GET['t'] ) ? trim( strip_tags( html_entity_decode( stripslashes( $_GET['t'] ) , ENT_QUOTES) ) ) : '';
+
+if( $linkmarklet_debug )
+    error_log( '$title = ' . $title );
 
 $selection = '';
 if ( !empty($_GET['s']) ) {
@@ -31,11 +43,22 @@ if ( ! empty($selection) ) {
     // $selection = '<p>' . str_replace('<p></p>', '', $selection) . '</p>';
 }
 
+if( $linkmarklet_debug )
+    error_log( '$selection = ' . $selection );
+
 $url = isset($_GET['u']) ? esc_url($_GET['u']) : '';
+
+if( $linkmarklet_debug )
+    error_log( '$url = ' . $url );
+
 $image = isset($_GET['i']) ? $_GET['i'] : '';
+
+if( $linkmarklet_debug )
+    error_log( '$image = ' . $image );
 
 function linkmarklet_post()
 {
+    global $linkmarklet_debug;
 
     $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
 
@@ -49,18 +72,26 @@ function linkmarklet_post()
     $timestamp      = (int) current_time( 'timestamp' );
     $timestamp_gmt  = (int) current_time( 'timestamp', 1 );
 
+    if( $linkmarklet_debug )
+    {
+        error_log( '$timestamp (source) = ' . $timestamp . ' ' . date( 'Y-m-d H:i:s', $timestamp ) );
+        error_log( '$timestamp_gmt (source) = ' . $timestamp_gmt . ' ' . date( 'Y-m-d H:i:s', $timestamp_gmt ) );
+    }
+
     $future_publish = false;
 
     // check to see if we need to bump our publish time
     if( $timeframe_min !== false && $timeframe_max !== false )
     {
         // set the post date
+        if( $linkmarklet_debug )
+            error_log( 'trigger: timeframe' );
 
         // figure out our start time which is either right now, or the future-most post
 
         $args = array(
-                'numberposts'   => 1,       // just want the newest post
-                'post_status'   => 'any'    // regardless of format
+                'numberposts'   => 1,
+                'post_status'   => array( 'publish', 'pending', 'future' )
             );
         $posts_array = get_posts( $args );
 
@@ -68,53 +99,116 @@ function linkmarklet_post()
         $post_timestamp = false;
         if( $posts_array )
         {
+            if( $linkmarklet_debug )
+                error_log( 'found post' );
+
             foreach( $posts_array as $post )
             {
                 setup_postdata( $post );
-                $post_timestamp = strtotime( $post->post_date );
+                $post_timestamp = strtotime( $post->post_date );    // local time
+                $post_timestamp_gmt = strtotime( $post->post_date_gmt );
+
+                if( $linkmarklet_debug )
+                {
+                    error_log( print_r( $post, true ) );
+                    error_log( '======================' );
+                }
+            }
+
+            if( $linkmarklet_debug )
+            {
+                error_log( '$post_timestamp = ' . $post_timestamp . ' ' . date( 'Y-m-d H:i:s', $post_timestamp ) );
+                error_log( '$timestamp = ' . $timestamp . ' ' . date( 'Y-m-d H:i:s', $timestamp ) );
             }
         }
 
         // get the future-most timestamp and use that
-        if( $post_timestamp > $timestamp )
+        if( ( $post_timestamp + ( $timeframe_min * 60 ) ) > $timestamp ) // $timestamp is still now() in local time
         {
             $future_publish = true;
 
+            if( $linkmarklet_debug )
+                error_log( 'FUTURE PUBLISH' );
+
             // our timestamps need to be adjusted
             $timestamp      = $post_timestamp;
-            $timestamp_gmt  = $post_timestamp + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
+            $timestamp_gmt  = $post_timestamp_gmt;
+
+            if( $linkmarklet_debug )
+            {
+                error_log( '$timestamp (before 1) = ' . $timestamp . ' ' . date( 'Y-m-d H:i:s', $timestamp ) );
+                error_log( '$timestamp_gmt (before 1) = ' . $timestamp_gmt . ' ' . date( 'Y-m-d H:i:s', $timestamp_gmt ) );
+            }
 
             // determine how many seconds we'll offset
-            $offset = rand( $timeframe_min, $timeframe_max ) * 60;
+            $offset = rand( $timeframe_min * 60, $timeframe_max * 60 );
+
+            if( $linkmarklet_debug )
+                error_log( '$offset (in seconds) = ' . $offset );
 
             // the post is scheduled so we need to offset both
             $timestamp      = $timestamp + $offset;
             $timestamp_gmt  = $timestamp_gmt + $offset;
+
+            if( $linkmarklet_debug )
+            {
+                error_log( '$timestamp (after) = ' . $timestamp . ' ' . date( 'Y-m-d H:i:s', $timestamp ) );
+                error_log( '$timestamp_gmt (after) = ' . $timestamp_gmt . ' ' . date( 'Y-m-d H:i:s', $timestamp_gmt ) );
+                error_log( 'NEW FUTURE PUBLISH TIME: ' . date( 'Y-m-d H:i:s', $timestamp ) );
+            }
         }
+
     }
 
     // we need to check to see if we're within the posting window (if set)
     if( $publish_start !== false && $publish_end !== false )
     {
+
+        if( $linkmarklet_debug )
+            error_log( 'checking publish window...' );
+
         // our publish window needs to be put within today's context
         $publish_start  = date( 'U', strtotime( date( 'Y-m-d' ) . ' ' . $publish_start . ':00:00' ) );
         $publish_end    = date( 'U', strtotime( date( 'Y-m-d' ) . ' ' . $publish_end . ':00:00' ) );
 
+        if( $linkmarklet_debug )
+            error_log( 'window: ' . $publish_start . ' - ' . $publish_end );
+
         // check to see if we're too early
         if( $timestamp < $publish_start )
         {
+            if( $linkmarklet_debug )
+                error_log( 'too early' );
+
             $future_publish     = true;
+
             $timestamp          = $publish_start;
             $timestamp_gmt      = $publish_start - ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
+
+            if( $linkmarklet_debug )
+            {
+                error_log( '$timestamp (after) = ' . $timestamp . ' ' . date( 'Y-m-d H:i:s', $timestamp ) );
+                error_log( '$timestamp_gmt (after) = ' . $timestamp_gmt . ' ' . date( 'Y-m-d H:i:s', $timestamp_gmt ) );
+            }
         }
 
         // check to see if we're too late
         if( $timestamp > $publish_end )
         {
+            if( $linkmarklet_debug )
+                error_log( 'too late' );
+
             // need to push it to tomorrow's start time
             $future_publish     = true;
-            $timestamp          = $publish_start + ( 24 * HOUR_IN_SECONDS );
-            $timestamp_gmt      = ( $publish_start + ( 24 * HOUR_IN_SECONDS ) ) - ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
+
+            $timestamp          = $publish_start + ( 24 * 60 * 60 );
+            $timestamp_gmt      = ( $publish_start + ( 24 * 60 * 60 ) ) - ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
+
+            if( $linkmarklet_debug )
+            {
+                error_log( '$timestamp (after) = ' . $timestamp . ' ' . date( 'Y-m-d H:i:s', $timestamp ) );
+                error_log( '$timestamp_gmt (after) = ' . $timestamp_gmt . ' ' . date( 'Y-m-d H:i:s', $timestamp_gmt ) );
+            }
         }
     }
 
@@ -145,14 +239,6 @@ function linkmarklet_post()
         $post['_cws_markdown_nonce']    = wp_create_nonce( 'cws-markdown-save' );
     }
 
-    // set the time attributes we want
-    if( $future_publish )
-    {
-        $post['edit_date']      = date( 'Y-m-d H:i:s', $timestamp );
-        $post['post_date']      = date( 'Y-m-d H:i:s', $timestamp );
-        $post['post_date_gmt']  = date( 'Y-m-d H:i:s', $timestamp_gmt );
-    }
-
     // set our post format
     if( isset( $settings['post_format'] ) )
     {
@@ -181,12 +267,28 @@ function linkmarklet_post()
         if( $future_publish )
         {
             $post['post_status']    = 'future';
+
+            if( $linkmarklet_debug )
+                error_log( '*** altering timestamps' );
+
+            $post['edit_date']      = date( 'Y-m-d H:i:s', $timestamp );
+            $post['post_date']      = date( 'Y-m-d H:i:s', $timestamp );
+            $post['post_date_gmt']  = date( 'Y-m-d H:i:s', $timestamp_gmt );
+
+            if( $linkmarklet_debug )
+            {
+                error_log( print_r( $post, true ) );
+                error_log( '======================' );
+            }
         }
         else
         {
             $post['post_status']    = 'publish';
         }
     }
+
+    // our final update
+    $post_ID = wp_update_post( $post );
 
     // we also need to add our custom field link
     $custom_field = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
@@ -196,9 +298,6 @@ function linkmarklet_post()
     // set our post tags if applicable
     if( !empty( $settings['support_tags'] ) && !empty( $_POST['tags'] ) )
         wp_set_post_tags( $post_ID, $_POST['tags'] );
-
-    // our final update
-    $post_ID = wp_update_post( $post );
 
     return $post_ID;
 }
