@@ -4,7 +4,7 @@ Donate link:http://mondaybynoon.com/donate/
 Tags: link, linkblog, press this
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 0.5
+Stable tag: 0.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
 == Changelog ==
+
+= 0.5.1 =
+* Fixed an issue where offiste image processing would not take place if using HTTPS
 
 = 0.5 =
 * Support for offsite images. If you include a Markdown-formatted image (e.g. `!&#91;Alt text&#93;&#40;http://example.com/image.jpg&#41;`) it will be downloaded and imported into your Media library so as to not hotlink someone else's image. The image will be wrapped a link to the source article so as to mimic OEMBED policies. **Note:** image titles are not supported at this time.

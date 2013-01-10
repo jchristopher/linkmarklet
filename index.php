@@ -262,7 +262,7 @@ function linkmarklet_post()
                 {
                     // we only want to strip out the URL at this point so we need just the URL of the upload
                     $new_image = array();
-                    preg_match( "~http://.*/(.*?).(jpe?g|gif|png)~ui", $upload, $new_image );
+                    preg_match( "~https?://.*/(.*?).(jpe?g|gif|png)~ui", $upload, $new_image );
 
                     if( !empty( $new_image[0] ) )
                     {

@@ -47,6 +47,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 
 <dl>
 
+    <dt>0.5.1</dt>
+    <dd>Fixed an issue where offiste image processing would not take place if using HTTPS</dd>
+
     <dt>0.5</dt>
     <dd>Support for offsite images. If you include a Markdown-formatted image (e.g. <code>![Alt text](http://example.com/image.jpg)</code>) it will be downloaded and imported into your Media library so as to not hotlink someone else's image. The image will be wrapped a link to the source article so as to mimic OEMBED policies. <strong>Note:</strong> image titles are not supported at this time.</dd>
 
