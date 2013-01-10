@@ -47,6 +47,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 
 <dl>
 
+    <dt>0.5.2</dt>
+    <dd>Removed unwanted escaping of post content that was causing issue with Markdown and inline HTML</dd>
+
     <dt>0.5.1</dt>
     <dd>Fixed an issue where offiste image processing would not take place if using HTTPS</dd>
 

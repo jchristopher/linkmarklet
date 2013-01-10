@@ -212,6 +212,7 @@ function linkmarklet_post()
         }
     }
 
+    $settings   = get_option( LINKMARKLET_PREFIX . 'settings' );
 
     $post       = get_default_post_to_edit();
     $post       = get_object_vars( $post );
@@ -225,7 +226,7 @@ function linkmarklet_post()
 
     // set our post properties
     $post['post_title']     = isset( $_POST['title'] ) ? sanitize_text_field( $_POST['title'] ) : '';
-    $content                = isset( $_POST['content'] ) ? esc_textarea( $_POST['content'] ) : '';
+    $content                = isset( $_POST['content'] ) ? $_POST['content'] : '';
 
     // Markdown on Save?
     if( is_plugin_active( 'markdown-on-save/markdown-on-save.php' ) && !empty( $settings['markdown'] ) )

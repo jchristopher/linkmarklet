@@ -4,14 +4,14 @@ Plugin Name: Linkmarklet
 Plugin URI: http://wordpress.org/extend/plugins/linkmarklet/
 Description: Alternate to Press This! specifically geared to linkblogging. Quickly post while saving a link to a Custom Field.
 Author: Jonathan Christopher
-Version: 0.5.1
+Version: 0.5.2
 Author URI: http://mondaybynoon.com/
 */
 
 if( !defined( 'IS_ADMIN' ) )
     define( 'IS_ADMIN', is_admin() );
 
-define( 'LINKMARKLET_VERSION',  '0.5.1' );
+define( 'LINKMARKLET_VERSION',  '0.5.2' );
 define( 'LINKMARKLET_PREFIX',   '_iti_linkmarklet_' );
 define( 'LINKMARKLET_DIR',      WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) );
 define( 'LINKMARKLET_URL',      rtrim( plugin_dir_url( __FILE__ ), '/' ) );

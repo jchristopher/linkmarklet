@@ -4,7 +4,7 @@ Donate link:http://mondaybynoon.com/donate/
 Tags: link, linkblog, press this
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 0.5.1
+Stable tag: 0.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
 == Changelog ==
+
+= 0.5.2 =
+* Removed unwanted escaping of post content that was causing issue with Markdown and inline HTML
 
 = 0.5.1 =
 * Fixed an issue where offiste image processing would not take place if using HTTPS
