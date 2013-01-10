@@ -227,10 +227,6 @@ function linkmarklet_post()
     $post['post_title']     = isset( $_POST['title'] ) ? sanitize_text_field( $_POST['title'] ) : '';
     $content                = isset( $_POST['content'] ) ? esc_textarea( $_POST['content'] ) : '';
 
-    // set the post_content and status
-    $post['post_content']   = $content;
-    $post['post_status']    = 'draft';
-
     // Markdown on Save?
     if( is_plugin_active( 'markdown-on-save/markdown-on-save.php' ) && !empty( $settings['markdown'] ) )
     {
@@ -238,6 +234,65 @@ function linkmarklet_post()
         $post['cws_using_markdown']     = 1;
         $post['_cws_markdown_nonce']    = wp_create_nonce( 'cws-markdown-save' );
     }
+
+
+    // see if we need to process any images
+    $images = array();
+    $markdown_pattern = "/(!\\[(.*?)\\]\\s?\\([ \\n]*(?:<(\\S*)>|(.*?))[ \\n]*(([\\'\"])(.*?)\\6[ \\n]*)?\\))/ui";
+    $markdown_pattern = "/(!\\[(.*?)\\]\\s?\\([ \\n]*(?:<(\\S*)>|(.*?))[ \\n]*?\\))/ui";
+    preg_match_all( $markdown_pattern, $content, $images );
+
+    $upload = false;
+    if( isset( $images[4] ) && !empty( $images[4] ) && current_user_can( 'upload_files' ) )
+    {
+        if( $linkmarklet_debug )
+            error_log( 'attempting sideload' );
+
+        foreach( $images[4] as $key => $image)
+        {
+            // see if files exist in content - we don't want to upload non-used selected files.
+            if( strpos( $content, htmlspecialchars( $image ) ) !== false )
+            {
+                if( $linkmarklet_debug )
+                    error_log( 'image: ' . $image );
+
+                $upload = media_sideload_image( $image, $post_ID, '' );
+
+                if ( !is_wp_error( $upload ) )
+                {
+                    // we only want to strip out the URL at this point so we need just the URL of the upload
+                    $new_image = array();
+                    preg_match( "~http://.*/(.*?).(jpe?g|gif|png)~ui", $upload, $new_image );
+
+                    if( !empty( $new_image[0] ) )
+                    {
+                        $url = mysql_real_escape_string( $_POST['url'] );
+
+                        if( is_plugin_active( 'markdown-on-save/markdown-on-save.php' ) && !empty( $settings['markdown'] ) )
+                        {
+                            $hosted_image_final = str_replace( $image, $new_image[0], $images[0][$key] );
+                        }
+                        else
+                        {
+                            $hosted_image_final = '<img src="' . $new_image[0] . '" alt="' . $images[2][$key] . '" />';
+                        }
+
+                        $hosted_image = "<a href='$url'>$hosted_image_final</a>";
+
+                        // swap out the ORIGINAL (offsite) Markdown with our linked, hosted version
+                        $content = str_replace( $images[0][$key] , $hosted_image, $content );
+
+                        if( $linkmarklet_debug )
+                            error_log( 'upload: ' . $new_image[0] );
+                    }
+                }
+            }
+        }
+    }
+
+    // set the post_content and status
+    $post['post_content']   = $content;
+    $post['post_status']    = 'draft';
 
     // set our post format
     if( isset( $settings['post_format'] ) )

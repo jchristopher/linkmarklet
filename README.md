@@ -47,6 +47,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 
 <dl>
 
+    <dt>0.5</dt>
+    <dd>Support for offsite images. If you include a Markdown-formatted image (e.g. <code>![Alt text](http://example.com/image.jpg)</code>) it will be downloaded and imported into your Media library so as to not hotlink someone else's image. The image will be wrapped a link to the source article so as to mimic OEMBED policies. *Note:* image titles are not supported at this time.</dd>
+
     <dt>0.4</dt>
     <dd>Support for Future Publishing. If you're like me, you like to bulk-linkblog, but you don't want to innundate readers with tons of posts all at once. There's now a setting that will let you auto-schedule a post to go live within a timeframe after your future-most-scheduled post. You can also set a 'bumper' of time between your most recently published posts.</dd>
     <dd>Added (optional) support for Tags</dd>
