@@ -46,6 +46,8 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 ## Changelog
 
 <dl>
+    <dt>0.5.3</dt>
+    <dd>Fixed an edge case issue where Linkmarklet would show up as a 404 when invoked. Triggered by certain web hosts (in particular HostGator) that seem to interfere when a $_GET includes a protocol.</dd>
 
     <dt>0.5.2</dt>
     <dd>Removed unwanted escaping of post content that was causing issue with Markdown and inline HTML</dd>

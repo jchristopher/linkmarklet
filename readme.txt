@@ -4,7 +4,7 @@ Donate link:http://mondaybynoon.com/donate/
 Tags: link, linkblog, press this
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 0.5.2
+Stable tag: 0.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
 == Changelog ==
+
+= 0.5.3 =
+* Fixed an edge case issue where Linkmarklet would show up as a 404 when invoked. Triggered by certain web hosts (in particular HostGator) that seem to interfere when a $_GET includes a protocol.
 
 = 0.5.2 =
 * Removed unwanted escaping of post content that was causing issue with Markdown and inline HTML

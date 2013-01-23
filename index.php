@@ -46,7 +46,10 @@ if ( ! empty($selection) ) {
 if( $linkmarklet_debug )
     error_log( '$selection = ' . $selection );
 
-$url = isset($_GET['u']) ? esc_url($_GET['u']) : '';
+// we stripped the protocol so as to avoid issues with certain
+// webhosts (HostGator) that throw 404's if protocols are in GET vars
+// but we tracked if it was HTTPS so we'll put the protocol back in
+$url = isset( $_GET['u'] ) ? esc_url( ( $_GET['m'] ? 'https://' : 'http://' ) . $_GET['u'] ) : '';
 
 if( $linkmarklet_debug )
     error_log( '$url = ' . $url );
