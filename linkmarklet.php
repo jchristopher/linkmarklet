@@ -4,14 +4,14 @@ Plugin Name: Linkmarklet
 Plugin URI: http://wordpress.org/extend/plugins/linkmarklet/
 Description: Alternate to Press This! specifically geared to linkblogging. Quickly post while saving a link to a Custom Field.
 Author: Jonathan Christopher
-Version: 0.5.3
+Version: 0.6
 Author URI: http://mondaybynoon.com/
 */
 
 if( !defined( 'IS_ADMIN' ) )
     define( 'IS_ADMIN', is_admin() );
 
-define( 'LINKMARKLET_VERSION',  '0.5.3' );
+define( 'LINKMARKLET_VERSION',  '0.6' );
 define( 'LINKMARKLET_PREFIX',   '_iti_linkmarklet_' );
 define( 'LINKMARKLET_DIR',      WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) );
 define( 'LINKMARKLET_URL',      rtrim( plugin_dir_url( __FILE__ ), '/' ) );
@@ -177,11 +177,10 @@ class Linkmarklet
     function edit_future_publish()
     {
         $settings       = get_option( LINKMARKLET_PREFIX . 'settings' );
-        $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : '';
-        $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : '';
-        $bumper         = isset( $settings['future_publish']['bumper'] ) ? intval( $settings['future_publish']['bumper'] ) : '';
-        $publish_start  = isset( $settings['future_publish']['start'] ) ? intval( $settings['future_publish']['start'] ) : '';
-        $publish_end    = isset( $settings['future_publish']['end'] ) ? intval( $settings['future_publish']['end'] ) : '';
+        $timeframe_min  = !isset( $settings['future_publish']['min'] ) || $settings['future_publish']['min'] === '' ? '' : intval( $settings['future_publish']['min'] );
+        $timeframe_max  = !isset( $settings['future_publish']['max'] ) || $settings['future_publish']['max'] === '' ? '' : intval( $settings['future_publish']['max'] );
+        $publish_start  = !isset( $settings['future_publish']['start'] ) || $settings['future_publish']['start'] === '' ? '' : intval( $settings['future_publish']['start'] );
+        $publish_end    = !isset( $settings['future_publish']['end'] ) || $settings['future_publish']['end'] === '' ? '' : intval( $settings['future_publish']['end'] );
         ?>
             Delay publishing by using a range of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> to <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes. I would also like to publish only between the hours of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][start]" type="text" id="linkmarklet_future_publish_start" value="<?php echo $publish_start; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][end]" type="text" id="linkmarklet_future_publish_end" value="<?php echo $publish_end; ?>" class="small-text" /><br /><span class="description">Leave empty to disable. 24 hour clock.</span>
         <?

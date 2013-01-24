@@ -66,10 +66,10 @@ function linkmarklet_post()
     $settings = get_option( LINKMARKLET_PREFIX . 'settings' );
 
     // set our time (if applicable)
-    $timeframe_min  = isset( $settings['future_publish']['min'] ) ? intval( $settings['future_publish']['min'] ) : false;
-    $timeframe_max  = isset( $settings['future_publish']['max'] ) ? intval( $settings['future_publish']['max'] ) : false;
-    $publish_start  = isset( $settings['future_publish']['start'] ) ? intval( $settings['future_publish']['start'] ) : false;
-    $publish_end    = isset( $settings['future_publish']['end'] ) ? intval( $settings['future_publish']['end'] ) : false;
+    $timeframe_min  = !isset( $settings['future_publish']['min'] ) || $settings['future_publish']['min'] === '' ? false : intval( $settings['future_publish']['min'] );
+    $timeframe_max  = !isset( $settings['future_publish']['max'] ) || $settings['future_publish']['max'] === '' ? false : intval( $settings['future_publish']['max'] );
+    $publish_start  = !isset( $settings['future_publish']['start'] ) || $settings['future_publish']['start'] === '' ? false : intval( $settings['future_publish']['start'] );
+    $publish_end    = !isset( $settings['future_publish']['end'] ) || $settings['future_publish']['end'] === '' ? false : intval( $settings['future_publish']['end'] );
 
     // by default it'll be right now
     $timestamp      = (int) current_time( 'timestamp' );
@@ -361,6 +361,8 @@ function linkmarklet_post()
     return $post_ID;
 }
 
+wp_enqueue_script( 'jquery-ui-autocomplete' );
+wp_enqueue_style( 'jquery-ui' );
 
 ?><!doctype html>
 <html lang="en">
@@ -368,6 +370,7 @@ function linkmarklet_post()
     <meta charset="utf-8">
     <title>Linkmarklet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <?php do_action( 'admin_print_scripts' ); do_action('admin_head'); ?>
     <style>
         * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
         body {
@@ -471,6 +474,11 @@ function linkmarklet_post()
         .message a {
             color:#238FF1;
         }
+        .ui-autocomplete {
+            /* By default the list is positioned according to the field, but we want a bit different */
+            width:200px !important;
+            left:110px !important;
+        }
     </style>
 </head>
 <body>
@@ -543,5 +551,61 @@ function linkmarklet_post()
         reposition();
     }
 </script>
+<?php if( !empty( $settings['support_tags'] ) ) : ?>
+<?php
+    $args = array( 'hide_empty' => false );
+    $tags = get_tags( $args );
+    foreach( $tags as $tag )
+        $all_tags[] = '"' . str_replace( '"', '\"', $tag->name ) . '"';
+?>
+
+<?php
+    do_action('admin_footer');
+    do_action('admin_print_footer_scripts');
+?>
+    <script type="text/javascript">
+        var LINKMARKLET_TAGS = [<?php echo implode( ',', $all_tags ); ?>];
+        function split( val ) {
+            return val.split( /,\s*/ );
+        }
+        function extractLast( term ) {
+            return split( term ).pop();
+        }
+
+        jQuery('#tags')
+            // don't navigate away from the field on tab when selecting an item
+            .bind( "keydown", function( event ) {
+                if ( event.keyCode === jQuery.ui.keyCode.TAB &&
+                    jQuery( this ).data( "autocomplete" ).menu.active ) {
+                        event.preventDefault();
+                    }
+            })
+            .autocomplete({
+                minLength: 0,
+                source: function( request, response ) {
+                    // delegate back to autocomplete, but extract the last term
+                    response( jQuery.ui.autocomplete.filter(
+                        LINKMARKLET_TAGS, extractLast( request.term ) ) );
+                },
+                focus: function() {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function( event, ui ) {
+                    var terms = split( this.value );
+                    // remove the current input
+                    terms.pop();
+                    // add the selected item
+                    terms.push( ui.item.value );
+                    // add placeholder to get the comma-and-space at the end
+                    terms.push( "" );
+                    this.value = terms.join( ", " );
+                    return false;
+                }
+            });
+    </script>
+<?php
+    endif;
+?>
 </body>
 </html>

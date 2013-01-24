@@ -46,6 +46,10 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 ## Changelog
 
 <dl>
+    <dt>0.6</dt>
+    <dd>Fixed an issue where Future Publish settings wouldn't properly unset after being set.</dd>
+    <dd>Added autocomplete to Tags</dd>
+
     <dt>0.5.3</dt>
     <dd>Fixed an edge case issue where Linkmarklet would show up as a 404 when invoked. Triggered by certain web hosts (in particular HostGator) that seem to interfere when a $_GET includes a protocol.</dd>
 
