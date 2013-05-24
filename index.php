@@ -242,7 +242,7 @@ function linkmarklet_post()
 
     // see if we need to process any images
     $images = array();
-    $markdown_pattern = "/(!\\[(.*?)\\]\\s?\\([ \\n]*(?:<(\\S*)>|(.*?))[ \\n]*(([\\'\"])(.*?)\\6[ \\n]*)?\\))/ui";
+    // $markdown_pattern = "/(!\\[(.*?)\\]\\s?\\([ \\n]*(?:<(\\S*)>|(.*?))[ \\n]*(([\\'\"])(.*?)\\6[ \\n]*)?\\))/ui";
     $markdown_pattern = "/(!\\[(.*?)\\]\\s?\\([ \\n]*(?:<(\\S*)>|(.*?))[ \\n]*?\\))/ui";
     preg_match_all( $markdown_pattern, $content, $images );
 
@@ -320,6 +320,15 @@ function linkmarklet_post()
     // update what we've set
     $post_ID = wp_update_post( $post );
 
+	// we also need to add our custom field link
+	$custom_field = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
+	if( !empty( $custom_field ) )
+		update_post_meta( $post_ID, $custom_field, mysql_real_escape_string( $_POST['url'] ) );
+
+	// set our post tags if applicable
+	if( !empty( $settings['support_tags'] ) && !empty( $_POST['tags'] ) )
+		wp_set_post_tags( $post_ID, $_POST['tags'] );
+
     // mark as published if that's the intention
     if ( isset( $_POST['publish'] ) && current_user_can( 'publish_posts' ) )
     {
@@ -348,15 +357,6 @@ function linkmarklet_post()
 
     // our final update
     $post_ID = wp_update_post( $post );
-
-    // we also need to add our custom field link
-    $custom_field = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
-    if( !empty( $custom_field ) )
-        update_post_meta( $post_ID, $custom_field, mysql_real_escape_string( $_POST['url'] ) );
-
-    // set our post tags if applicable
-    if( !empty( $settings['support_tags'] ) && !empty( $_POST['tags'] ) )
-        wp_set_post_tags( $post_ID, $_POST['tags'] );
 
     return $post_ID;
 }

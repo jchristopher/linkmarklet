@@ -29,7 +29,6 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 1. Install the bookmarklet provided on the `Settings > Linkmarklet` screen
 1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
-
 ## Usage
 
 1. Install the bookmarklet provided on the `Settings > Linkmarklet` screen
@@ -46,6 +45,10 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 ## Changelog
 
 <dl>
+
+    <dt>0.7</dt>
+    <dd>Fixed an issue where post Tags were set after the post was published which caused interference with other plugin processes</dd>
+
     <dt>0.6</dt>
     <dd>Fixed an issue where Future Publish settings wouldn't properly unset after being set.</dd>
     <dd>Added autocomplete to Tags</dd>

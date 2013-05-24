@@ -3,8 +3,8 @@ Contributors: jchristopher
 Donate link:http://mondaybynoon.com/donate/
 Tags: link, linkblog, press this
 Requires at least: 3.3
-Tested up to: 3.5
-Stable tag: 0.6
+Tested up to: 3.6
+Stable tag: 0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
 == Changelog ==
+
+= 0.7 =
+* Fixed an issue where post Tags were set after the post was published which caused interference with other plugin processes
 
 = 0.6 =
 * Fixed an issue where Future Publish settings wouldn't properly unset after being set.
