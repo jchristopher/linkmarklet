@@ -140,7 +140,7 @@ class Linkmarklet
                 <option value="<?php echo $category->cat_ID; ?>"<?php if( isset( $settings['category'] ) && $settings['category'] == $category->cat_ID ) : ?> selected="selected"<?php endif; ?>><?php echo $category->cat_name; ?></option>
             <?php endforeach; ?>
         </select>
-        <?
+        <?php
     }
 
     function edit_post_format()
@@ -171,7 +171,7 @@ class Linkmarklet
         $custom_field   = isset( $settings['custom_field'] ) ? $settings['custom_field'] : '';
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[custom_field]" type="text" id="linkmarklet_custom_field" value="<?php echo $custom_field; ?>" class="regular-text"> <span class="description">Your <strong>Link</strong> will be saved to this Custom Field</span>
-        <?
+        <?php
     }
 
     function edit_future_publish()
@@ -183,7 +183,7 @@ class Linkmarklet
         $publish_end    = !isset( $settings['future_publish']['end'] ) || $settings['future_publish']['end'] === '' ? '' : intval( $settings['future_publish']['end'] );
         ?>
             Delay publishing by using a range of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][min]" type="text" id="linkmarklet_future_publish_min" value="<?php echo $timeframe_min; ?>" class="small-text" /> to <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][max]" type="text" id="linkmarklet_future_publish_max" value="<?php echo $timeframe_max; ?>" class="small-text" /> minutes. I would also like to publish only between the hours of <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][start]" type="text" id="linkmarklet_future_publish_start" value="<?php echo $publish_start; ?>" class="small-text" /> and <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[future_publish][end]" type="text" id="linkmarklet_future_publish_end" value="<?php echo $publish_end; ?>" class="small-text" /><br /><span class="description">Leave empty to disable. 24 hour clock.</span>
-        <?
+        <?php
     }
 
     function edit_prepopulate_slug()
@@ -192,7 +192,7 @@ class Linkmarklet
         $prepopulate_slug   = isset( $settings['prepopulate_slug'] ) ? true : false;
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[prepopulate_slug]" type="checkbox" id="linkmarklet_prepopulate_slug" value="1" <?php if( $prepopulate_slug ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Auto-generate a slug</span>
-        <?
+        <?php
     }
 
     function edit_support_tags()
@@ -201,7 +201,7 @@ class Linkmarklet
         $support_tags   = isset( $settings['support_tags'] ) ? true : false;
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[support_tags]" type="checkbox" id="linkmarklet_support_tags" value="1" <?php if( $support_tags ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Include a field for tags</span>
-        <?
+        <?php
     }
 
     function edit_markdown()
@@ -210,7 +210,7 @@ class Linkmarklet
         $markdown   = isset( $settings['markdown'] ) ? true : false;
         ?>
             <input name="<?php echo LINKMARKLET_PREFIX; ?>settings[markdown]" type="checkbox" id="linkmarklet_markdown" value="1" <?php if( $markdown ) : ?>checked="checked"<?php endif; ?>/> <span class="description">Use Markdown on Save when publishing</span>
-        <?
+        <?php
     }
 
     function assets()
