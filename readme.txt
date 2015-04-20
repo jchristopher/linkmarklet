@@ -1,16 +1,18 @@
 === Linkmarklet ===
 Contributors: jchristopher
 Donate link:http://mondaybynoon.com/donate/
-Tags: link, linkblog, press this
+Tags: adopt-me, link, linkblog, press this
 Requires at least: 3.3
 Tested up to: 3.6
 Stable tag: 0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Linkmarklet is an alternative to the Press This! bookmarklet aimed at rapid linkblogging. Quickly post while saving a link to a Custom Field.
+[ADOPT ME!] Linkmarklet is an alternative to the Press This! bookmarklet aimed at rapid linkblogging. Quickly post while saving a link to a Custom Field.
 
 == Description ==
+
+**ADOPT ME!** Press This! was completely revamped in WordPres 4.2 and as such I will be focusing any effort that may have been put into Linkmarklet into that feature. As a result I am actively seeking someone to take over development of Linkmarklet. Thank you for considering!
 
 Instead of the traditional Press This! interface, Linkmarklet offers a much more streamlined UI allowing you to linkblog quickly. Upon clicking the bookmarklet, Linkmarklet will present you with a simple way of editing the page title, the page link, the page slug, and the post content. In the settings you can define three things:
 

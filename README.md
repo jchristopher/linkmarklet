@@ -1,3 +1,5 @@
+**ADOPT ME!** Press This! was completely revamped in WordPres 4.2 and as such I will be focusing any effort that may have been put into Linkmarklet into that feature. As a result I am actively seeking someone to take over development of Linkmarklet. Please contact me if you are interested in taking over development of Linkmarklet. Thank you for considering!
+
 This is a WordPress plugin. [Official download available on the WordPress Plugin Directory](http://wordpress.org/extend/plugins/linkmarklet/).
 
 # Linkmarklet
