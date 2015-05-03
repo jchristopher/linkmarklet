@@ -1,10 +1,9 @@
 === Linkmarklet ===
 Contributors: jchristopher
-Donate link:http://mondaybynoon.com/donate/
 Tags: adopt-me, link, linkblog, press this
 Requires at least: 3.3
-Tested up to: 3.6
-Stable tag: 0.7
+Tested up to: 4.2.1
+Stable tag: 0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +31,10 @@ That's about it. Clicking Publish pushes the entry live instantly (or schedules 
 1. Customize your installation using the `Settings > Linkmarklet` menu in the WordPress admin
 
 == Changelog ==
+
+= 0.8 =
+* ADOPT ME! Linkmarklet is up for adoption, if you would like to take ownership please let me know! Contact information on my wordpress.org Profile page
+* Misc code standardization, formatting, and CSS updates
 
 = 0.7 =
 * Fixed an issue where post Tags were set after the post was published which caused interference with other plugin processes
