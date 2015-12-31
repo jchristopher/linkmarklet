@@ -351,9 +351,12 @@ function linkmarklet_post() {
     }
 
     // our final update
-    $post_ID = wp_update_post( $post );
 
+
+    do_action( 'linkmarklet-pre-post',$post_ID);
+    $post_ID = wp_update_post( $post );
     return $post_ID;
+    do_action( 'linkmarklet-after-post',$post_ID);
 }
 
 wp_enqueue_script( 'underscore' );
@@ -517,6 +520,7 @@ wp_enqueue_style( 'jquery-ui' );
             <label for="slug">Slug</label>
             <input type="text" name="slug" id="slug" value="<?php if( isset( $settings['prepopulate_slug'] ) ) { echo sanitize_title( $title ); } ?>" />
         </div>
+        <?php do_action('linkmarklet-form',$url,$title,$selection); ?>
         <?php if( ! empty( $settings['support_tags'] ) ) : ?>
             <div class="field textfield" id="row-tags">
                 <label for="url">Tags</label>
@@ -541,6 +545,7 @@ wp_enqueue_style( 'jquery-ui' );
         var tags            = document.getElementById('row-tags').offsetHeight;
         height = height - tags;
         <?php endif; ?>
+        <?php do_action(linkmarklet-js); ?>
         document.getElementById('content').style.height = height + 'px';
     }
     reposition();
